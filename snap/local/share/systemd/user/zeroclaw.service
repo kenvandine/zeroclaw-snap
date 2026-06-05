@@ -1,0 +1,11 @@
+[Unit]
+Description=ZeroClaw gateway service
+After=network.target
+
+[Service]
+ExecStart=/snap/bin/zeroclaw.daemon
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=default.target

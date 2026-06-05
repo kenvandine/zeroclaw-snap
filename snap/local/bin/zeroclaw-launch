@@ -1,0 +1,15 @@
+#!/bin/sh
+# zeroclaw-launch — wrapper that installs the gateway service on first run.
+
+export PATH="$SNAP/bin:$PATH"
+mkdir -p "$HOME/workspace"
+
+# Install and enable the gateway service on first run.
+if ! systemctl --user is-enabled zeroclaw >/dev/null 2>&1; then
+  mkdir -p "$HOME/.config/systemd/user"
+  cp "$SNAP/share/systemd/user/zeroclaw.service" "$HOME/.config/systemd/user/zeroclaw.service"
+  systemctl --user daemon-reload 2>/dev/null || true
+  systemctl --user enable --now zeroclaw 2>/dev/null || true
+fi
+
+exec "$SNAP/bin/node" "$SNAP/bin/zeroclaw-wrapper.js" "$@"

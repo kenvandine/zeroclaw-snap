@@ -1,0 +1,76 @@
+name: zeroclaw
+base: core24
+adopt-info: zeroclaw
+title: ZeroClaw
+summary: Zero-config autonomous AI agent
+description: |
+  ZeroClaw is a zero-config autonomous AI agent. It wraps a native binary
+  runtime in a clean Node.js SDK and exposes an HTTP/WebSocket gateway for
+  chat and agentic tasks (http://localhost:3000).
+
+  Supports optional browser automation and multiple LLM backends via a
+  simple TOML config file.
+
+  SETUP
+
+  No configuration is required to start. The background gateway service
+  starts automatically the first time you run any zeroclaw command and is
+  managed as a standard systemd user unit:
+
+    systemctl --user status zeroclaw
+    systemctl --user stop zeroclaw
+
+  To connect a chat platform or configure a non-default LLM:
+
+    zeroclaw configure
+
+source-code: https://github.com/clawrun-sh/clawrun
+issues: https://github.com/clawrun-sh/clawrun/issues
+contact: https://github.com/clawrun-sh/clawrun/issues
+
+grade: stable
+confinement: classic
+
+apps:
+  # Interactive CLI — one-shot agent queries, config, and status.
+  zeroclaw:
+    command: bin/zeroclaw-launch
+    environment:
+      OPENCLAW_CLI_NAME: zeroclaw
+
+  # Gateway daemon — registered as /snap/bin/zeroclaw.daemon so the snap
+  # wrapper sets up $SNAP and friends before exec-ing the launch script.
+  # Managed by the systemd user unit installed on first run of 'zeroclaw'.
+  daemon:
+    command: bin/zeroclaw-daemon-launch
+    environment:
+      OPENCLAW_CLI_NAME: zeroclaw
+
+parts:
+  launcher:
+    plugin: dump
+    source: snap/local
+    organize:
+      bin/zeroclaw-launch: bin/zeroclaw-launch
+      bin/zeroclaw-daemon-launch: bin/zeroclaw-daemon-launch
+      bin/zeroclaw-wrapper.js: bin/zeroclaw-wrapper.js
+      share/systemd/user/zeroclaw.service: share/systemd/user/zeroclaw.service
+
+  zeroclaw:
+    plugin: npm
+    source: .
+    npm-include-node: true
+    npm-node-version: '22.16.0'
+    override-build: |
+      craftctl default
+      export PATH="$CRAFT_PART_INSTALL/bin:$PATH"
+      patchelf \
+        --set-interpreter /snap/core24/current/lib64/ld-linux-x86-64.so.2 \
+        --set-rpath /snap/core24/current/lib/x86_64-linux-gnu \
+        "$CRAFT_PART_INSTALL/bin/node"
+      npm install -g --prefix "$CRAFT_PART_INSTALL" zeroclaw
+      craftctl set version="$("$CRAFT_PART_INSTALL/bin/node" -e \
+        "console.log(require('$CRAFT_PART_INSTALL/lib/node_modules/zeroclaw/package.json').version)")"
+    build-packages:
+      - python3
+      - patchelf

@@ -1,0 +1,7 @@
+#!/bin/sh
+# zeroclaw-daemon-launch — persistent gateway service.
+
+export PATH="$SNAP/bin:$PATH"
+mkdir -p "$HOME/workspace"
+
+exec "$SNAP/bin/node" "$SNAP/bin/zeroclaw-wrapper.js" daemon --port 3000
