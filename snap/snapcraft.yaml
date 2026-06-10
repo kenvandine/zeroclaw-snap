@@ -64,13 +64,16 @@ parts:
     override-build: |
       craftctl default
       export PATH="$CRAFT_PART_INSTALL/bin:$PATH"
-      patchelf \
-        --set-interpreter /snap/core24/current/lib64/ld-linux-x86-64.so.2 \
-        --set-rpath /snap/core24/current/lib/x86_64-linux-gnu \
-        "$CRAFT_PART_INSTALL/bin/node"
+      # Classic confinement runs against the host's dynamic linker, so the
+      # bundled node needs no patchelf (matches the openclaw reference snap).
+      # Patching node to core24's linker pre-npm-install segfaults the build
+      # because /snap/core24/current is not mounted inside the build instance.
       npm install -g --prefix "$CRAFT_PART_INSTALL" zeroclaw
+      # The platform binaries ship without the execute bit (npm only preserves
+      # +x for declared "bin" entries, and zeroclaw exposes them via the SDK's
+      # getBinaryPath() instead).  Mark them executable or spawn fails (EACCES).
+      chmod +x "$CRAFT_PART_INSTALL"/lib/node_modules/zeroclaw/dist/bin/* 2>/dev/null || true
       craftctl set version="$("$CRAFT_PART_INSTALL/bin/node" -e \
         "console.log(require('$CRAFT_PART_INSTALL/lib/node_modules/zeroclaw/package.json').version)")"
     build-packages:
       - python3
-      - patchelf
