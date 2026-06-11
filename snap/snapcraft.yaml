@@ -24,9 +24,11 @@ description: |
 
     zeroclaw configure
 
-source-code: https://github.com/clawrun-sh/clawrun
-issues: https://github.com/clawrun-sh/clawrun/issues
-contact: https://github.com/clawrun-sh/clawrun/issues
+source-code: https://github.com/kenvandine/zeroclaw-snap
+issues: https://github.com/kenvandine/zeroclaw-snap/issues
+contact: https://github.com/kenvandine/zeroclaw-snap/issues
+website: https://clawrun.sh
+license: Apache-2.0
 
 grade: stable
 confinement: classic

@@ -38,3 +38,13 @@ Connect to the gateway at `http://localhost:3000` (WebSocket: `ws://localhost:30
 **Native binary wrapper** — ZeroClaw bundles a platform-specific native binary inside the npm package. The snap launcher uses `getBinaryPath()` from the zeroclaw SDK (via `snap/local/bin/zeroclaw-wrapper.js`) to locate and exec the correct binary, avoiding hardcoded paths that would break across package updates.
 
 **Classic confinement** — ZeroClaw performs agentic tasks including optional browser automation, requiring broad system access.
+
+## Links
+
+- Upstream project: <https://github.com/clawrun-sh/clawrun> (https://clawrun.sh)
+- Snap packaging: <https://github.com/kenvandine/zeroclaw-snap>
+- Report a snap issue: <https://github.com/kenvandine/zeroclaw-snap/issues>
+
+## License
+
+ZeroClaw is licensed under **Apache-2.0**. This snap packaging lives in [kenvandine/zeroclaw-snap](https://github.com/kenvandine/zeroclaw-snap).
