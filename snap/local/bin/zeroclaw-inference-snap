@@ -27,6 +27,19 @@ err() { printf '%s: %s\n' "$CLI" "$1" >&2; }
 # itself by appending the default /v1/chat/completions suffix.
 get_snap_api_base() {
   sname="$1"
+  # Prefer the standardized status file — avoids the TTY-output CLI issue
+  # where `<snap> get <key>` writes directly to /dev/tty rather than stdout.
+  # Strip the path (e.g. /v1) to return just http://HOST:PORT.
+  status_file="/var/snap/${sname}/current/share/status/status.json"
+  if [ -f "$status_file" ]; then
+    openai_url=$(grep -o '"openai"[[:space:]]*:[[:space:]]*"[^"]*"' "$status_file" \
+      | sed 's/.*"openai"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+    if [ -n "$openai_url" ]; then
+      printf '%s' "$openai_url" | sed 's|/[^/]*$||'
+      return 0
+    fi
+  fi
+  # Fallback: CLI-based detection for snaps without a status file
   snap list "$sname" >/dev/null 2>&1 || return 1
   host=$("$sname" get http.host 2>/dev/null)
   port=$("$sname" get http.port 2>/dev/null)
