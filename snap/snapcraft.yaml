@@ -11,6 +11,12 @@ description: |
   Supports optional browser automation and multiple LLM backends via a
   simple TOML config file.
 
+  LOCAL AI
+
+  Run 'zeroclaw.inference-snap' to detect a Canonical inference snap
+  (gemma4, gemma3, deepseek-r1, and others) and configure it as
+  ZeroClaw's active provider in one step — fully offline, no API key required.
+
   SETUP
 
   No configuration is required to start. The background gateway service
