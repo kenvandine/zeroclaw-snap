@@ -19,8 +19,9 @@ sudo snap install --classic zeroclaw_<version>_amd64.snap --dangerous
 ## Usage
 
 ```
-zeroclaw configure    # configure LLM backend and options
-zeroclaw agent -m "do something"   # one-shot agent query
+zeroclaw configure          # configure LLM backend and options
+zeroclaw agent -m "..."     # one-shot agent query
+zeroclaw.inference-snap     # pick a Canonical inference snap (interactive TUI)
 ```
 
 The background gateway service is installed and enabled as a systemd user unit the first time any `zeroclaw` command is run:
@@ -32,6 +33,19 @@ systemctl --user start zeroclaw
 ```
 
 Connect to the gateway at `http://localhost:3000` (WebSocket: `ws://localhost:3000/ws/chat`).
+
+### Local AI with Canonical inference snaps
+
+`zeroclaw.inference-snap` detects installed [Canonical inference snaps](https://snapcraft.io/search?q=inference)
+such as `gemma4`, `gemma3`, `deepseek-r1`, `nemotron-3-nano`, or `qwen-vl`, probes
+their OpenAI-compatible API, and lets you choose one as ZeroClaw's active provider.
+It writes `~/.zeroclaw/config.toml` and restarts the gateway so the change takes
+effect immediately. Re-run it any time to switch models.
+
+```
+sudo snap install gemma4
+zeroclaw.inference-snap
+```
 
 ## Design notes
 
