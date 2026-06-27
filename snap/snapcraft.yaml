@@ -118,7 +118,7 @@ parts:
         https://github.com/zeroclaw-labs/zeroclaw.git \
         "$CRAFT_PART_BUILD/zeroclaw-src"
       cd "$CRAFT_PART_BUILD/zeroclaw-src/web"
-      npm ci
+      npm ci --include=dev
       npm run build
       mkdir -p "$CRAFT_PART_INSTALL/share/zeroclaw/web"
       cp -r dist "$CRAFT_PART_INSTALL/share/zeroclaw/web/"
