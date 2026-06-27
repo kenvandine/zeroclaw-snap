@@ -57,6 +57,7 @@ apps:
     command: bin/zeroclaw-launch
     environment:
       OPENCLAW_CLI_NAME: zeroclaw
+      ZEROCLAW_WEB_DIST_DIR: $SNAP/share/zeroclaw/web/dist
 
   # Gateway daemon — registered as /snap/bin/zeroclaw.daemon so the snap
   # wrapper sets up $SNAP and friends before exec-ing the launch script.
@@ -65,6 +66,7 @@ apps:
     command: bin/zeroclaw-daemon-launch
     environment:
       OPENCLAW_CLI_NAME: zeroclaw
+      ZEROCLAW_WEB_DIST_DIR: $SNAP/share/zeroclaw/web/dist
 
   # Interactive Lemonade model picker.  Run as: zeroclaw.lemonade
   lemonade:
@@ -107,7 +109,19 @@ parts:
       # +x for declared "bin" entries, and zeroclaw exposes them via the SDK's
       # getBinaryPath() instead).  Mark them executable or spawn fails (EACCES).
       chmod +x "$CRAFT_PART_INSTALL"/lib/node_modules/zeroclaw/dist/bin/* 2>/dev/null || true
-      craftctl set version="$("$CRAFT_PART_INSTALL/bin/node" -e \
-        "console.log(require('$CRAFT_PART_INSTALL/lib/node_modules/zeroclaw/package.json').version)")"
+      # Derive snap version from the binary (not the npm wrapper package).
+      BIN="$CRAFT_PART_INSTALL/lib/node_modules/zeroclaw/dist/bin/zeroclaw-linux-amd64"
+      BINARY_VERSION=$("$BIN" --version 2>&1 | awk '{print $2}')
+      craftctl set version="$BINARY_VERSION"
+      # Clone the matching source tag and build the web dashboard.
+      git clone --depth 1 --branch "v${BINARY_VERSION}" \
+        https://github.com/zeroclaw-labs/zeroclaw.git \
+        "$CRAFT_PART_BUILD/zeroclaw-src"
+      cd "$CRAFT_PART_BUILD/zeroclaw-src/web"
+      npm ci
+      npm run build
+      mkdir -p "$CRAFT_PART_INSTALL/share/zeroclaw/web"
+      cp -r dist "$CRAFT_PART_INSTALL/share/zeroclaw/web/"
     build-packages:
       - python3
+      - git
