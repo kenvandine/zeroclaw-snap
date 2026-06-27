@@ -4,4 +4,4 @@
 export PATH="$SNAP/bin:$PATH"
 mkdir -p "$HOME/workspace"
 
-exec "$SNAP/bin/node" "$SNAP/bin/zeroclaw-wrapper.js" daemon --port 3000
+exec "$SNAP/bin/node" "$SNAP/bin/zeroclaw-wrapper.js" daemon --host 0.0.0.0 --port 3000
