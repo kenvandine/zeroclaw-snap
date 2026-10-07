@@ -22,7 +22,13 @@ jobs:
       - name: Compare upstream vs store candidate
         id: v
         run: |
-          UP=$(curl -sL https://registry.npmjs.org/zeroclaw | jq -r '."dist-tags".latest')
+          # The snap version comes from the bundled binary, not the npm wrapper
+          # package (e.g. wrapper 0.1.4 ships binary 0.5.6), so extract the
+          # binary from the latest tarball and ask it.
+          TARBALL=$(curl -fsSL https://registry.npmjs.org/zeroclaw/latest | jq -r '.dist.tarball')
+          curl -fsSL "$TARBALL" | tar xz package/dist/bin/zeroclaw-linux-amd64
+          chmod +x package/dist/bin/zeroclaw-linux-amd64
+          UP=$(package/dist/bin/zeroclaw-linux-amd64 --version 2>&1 | awk '{print $2}')
           UP=${UP#v}
           CUR=$(curl -fsSL -H 'Snap-Device-Series: 16' \
             "https://api.snapcraft.io/v2/snaps/info/zeroclaw" 2>/dev/null \
